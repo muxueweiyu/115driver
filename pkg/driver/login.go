@@ -22,12 +22,13 @@ func (c *Pan115Client) LoginCheck() error {
 	return nil
 }
 
-// ImportCredential import uid, cid, seid
+// ImportCredential import uid, cid, seid, kid
 func (c *Pan115Client) ImportCredential(cr *Credential) *Pan115Client {
 	cookies := map[string]string{
 		CookieNameUid:  cr.UID,
 		CookieNameCid:  cr.CID,
 		CookieNameSeid: cr.SEID,
+		CookieNameKid: cr.KID,
 	}
 	c.ImportCookies(cookies, CookieDomain115)
 	return c
@@ -70,6 +71,7 @@ type Credential struct {
 	UID  string `json:"UID"`
 	CID  string `json:"CID"`
 	SEID string `json:"SEID"`
+	KID string `json:"KID"`
 }
 
 // FromCookie get uid, cid, seid from cookie string
@@ -92,8 +94,10 @@ func (cr *Credential) FromCookie(cookie string) error {
 	cr.UID = cookieMap["UID"]
 	cr.CID = cookieMap["CID"]
 	cr.SEID = cookieMap["SEID"]
-	if cr.CID == "" || cr.UID == "" || cr.SEID == "" {
-		return errors.Wrap(ErrBadCookie, "bad cookie, miss UID, CID or SEID")
+	cr.KID = cookieMap["KID"]
+	
+	if cr.CID == "" || cr.UID == "" || cr.SEID == "" || cr.KID == "" {
+		return errors.Wrap(ErrBadCookie, "bad cookie, miss UID, CID or SEID or KID")
 	}
 	return nil
 }
